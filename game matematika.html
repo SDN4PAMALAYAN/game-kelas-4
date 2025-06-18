@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MILIK SDN 4 PAMALAYAN - Game Matematika Kelas 4 SD</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+<style>
+  /* Reset dan dasar styling */
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
+  }
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0d0221, #1a1f49);
+    color: #e0e0e0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+  /* Header styling */
+  header {
+    position: sticky;
+    top: 0;
+    background: linear-gradient(90deg, rgba(102,126,234,0.8), rgba(118,75,162,0.9));
+    backdrop-filter: saturate(180%) blur(12px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    color: #eef1ff;
+    box-shadow: 0 0 20px #766aa2aa;
+    z-index: 10;
+  }
+  header h1 {
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+    color: #c4b5fd;
+  }
+  .header-info {
+    display: flex;
+    gap: 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  .header-info div {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #3b2a57cc;
+    padding: 4px 12px;
+    border-radius: 12px;
+    box-shadow: 0 0 8px #a78bfaaa;
+    min-width: 90px;
+    justify-content: center;
+  }
+  .header-info .material-icons {
+    color: #a78bfa;
+    font-size: 20px;
+  }
+
+  /* Game area container */
+  main {
+    flex-grow: 1;
+    display: flex;
+    overflow: hidden;
+    background: #120f2c;
+  }
+
+  /* Sidebar for controls, power-ups, achievements */
+  aside.sidebar {
+    width: 320px;
+    background: #1b1643;
+    box-shadow: inset 1px 0 5px #423f6d;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    color: #d3d3ffcc;
+    transition: width 0.3s ease;
+  }
+  aside.sidebar.collapsed {
+    width: 64px;
+  }
+  aside .sidebar-header {
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  aside button.toggle-sidebar {
+    background: none;
+    border: none;
+    color: #9955ffcc;
+    cursor: pointer;
+    font-size: 28px;
+  }
+  aside section {
+    margin-bottom: 1.2rem;
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+  aside h2 {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.6rem;
+    color: #aa99ff;
+  }
+  .sidebar-content p {
+    font-size: 0.9rem;
+    line-height: 1.3;
+    margin-bottom: 0.4rem;
+  }
+  .power-up {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+  }
+  .power-up .icon {
+    width: 40px;
+    height: 40px;
+    background: #5932e0;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 12px #aa91ffcc;
+  }
+  .power-up .icon .material-icons {
+    font-size: 28px;
+    color: #fff;
+  }
+  .achievement {
+    background: #3b3587aa;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    margin-bottom: 0.8rem;
+    box-shadow: 0 0 8px #836dfdcc;
+  }
+  .achievement.unlocked {
+    background: #8e7fffcc;
+    color: #fff;
+    box-shadow: 0 0 12px #d4c6ffcc;
+  }
+
+  /* Canvas container */
+  .game-canvas-container {
+    flex-grow: 1;
+    position: relative;
+    background: radial-gradient(circle at center, #201f35 0%, #120f2c 80%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  canvas#gameCanvas {
+    background: #241e50;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 720px;
+    aspect-ratio: 4 / 3;
+    display: block;
+    box-shadow: 0 0 24px #8076ff;
+  }
+
+  /* Bottom action bar */
+  footer {
+    background: linear-gradient(90deg, #392b83cd, #6849e3cd);
+    backdrop-filter: saturate(180%) blur(10px);
+    padding: 12px 24px;
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+  }
+  footer button {
+    background: #644eea;
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-weight: 700;
+    padding: 12px 28px;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 0 20px #a88bff88;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  footer button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 40px #ac9effcc;
+  }
+  footer button .material-icons {
+    font-size: 22px;
+  }
+
+  /* Achievement popup */
+  #achievement-popup {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(200%);
+    background: #7a5ff9cc;
+    color: #fff;
+    font-weight: 700;
+    padding: 1rem 2rem;
+    border-radius: 40px;
+    box-shadow: 0 0 18px #b2a7ffdd;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.6s cubic-bezier(0.22,1,0.36,1), opacity 0.6s ease;
+    z-index: 20;
+  }
+  #achievement-popup.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  #achievement-popup .material-icons {
+    font-size: 32px;
+  }
+
+  /* Responsive */
+  @media (max-width: 980px) {
+    aside.sidebar {
+      display: none;
+    }
+    main {
+      justify-content: center;
+    }
+  }
+  @media (max-width: 480px) {
+    header {
+      flex-direction: column;
+      gap: 8px;
+      height: auto;
+    }
+    .header-info {
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    footer {
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    canvas#gameCanvas {
+      max-width: 100%;
+      width: 100vw;
+      border-radius: 0;
+    }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>MILIK SDN 4 PAMALAYAN</h1>
+  <div class="header-info" aria-label="Informasi permainan">
+    <div><span class="material-icons" aria-hidden="true">stars</span> Skor: <span id="score">0</span></div>
+    <div><span class="material-icons" aria-hidden="true">auto_awesome</span> Level: <span id="level">1</span></div>
+    <div><span class="material-icons" aria-hidden="true">favorite</span> Nyawa: <span id="lives">3</span></div>
+    <div><span class="material-icons" aria-hidden="true">timer</span> Waktu: <span id="timer">60</span> detik</div>
+  </div>
+</header>
+
+<main>
+  <aside class="sidebar" id="sidebar" aria-label="Panel kontrol dan informasi">
+    <div class="sidebar-header">
+      <span>Kontrol & Info</span>
+      <button class="toggle-sidebar" aria-label="Sembunyikan panel sidebar" id="toggleSidebar" title="Buka/tutup panel sidebar">&#9776;</button>
+    </div>
+    <section class="sidebar-content">
+      <h2>Petunjuk</h2>
+      <p>Jawab soal matematika yang muncul di layar dengan memilih jawaban benar.</p>
+      <p>Gunakan mouse atau sentuh jawaban yang tepat.</p>
+      <p>Kumpulkan skor dan naikkan level dengan benar.</p>
+    </section>
+    <section>
+      <h2>Power-Up Aktif</h2>
+      <div id="powerUpsList">
+        <em>Tidak ada power-up aktif</em>
+      </div>
+    </section>
+    <section>
+      <h2>Pencapaian</h2>
+      <div id="achievementsList">
+        <em>Belum ada pencapaian</em>
+      </div>
+    </section>
+  </aside>
+  <div class="game-canvas-container" role="main" aria-label="Area permainan">
+    <canvas id="gameCanvas" width="720" height="540" aria-live="polite" aria-atomic="true"></canvas>
+  </div>
+</main>
+
+<footer>
+  <button id="btnPause" aria-label="Jeda permainan"><span class="material-icons">pause</span> Jeda</button>
+  <button id="btnResume" aria-label="Lanjutkan permainan" style="display:none"><span class="material-icons">play_arrow</span> Lanjutkan</button>
+  <button id="btnReset" aria-label="Mulai ulang permainan"><span class="material-icons">restart_alt</span> Mulai Ulang</button>
+  <button id="btnFullscreen" aria-label="Mode layar penuh"><span class="material-icons">fullscreen</span> Layar Penuh</button>
+</footer>
+
+<div id="achievement-popup" role="alert" aria-live="assertive" aria-atomic="true" tabindex="0">
+  <span class="material-icons" aria-hidden="true">emoji_events</span>
+  <span id="achievement-text">Pencapaian Terbuka!</span>
+</div>
+
+<script>
+  // Game state object as per specification
+  const gameState = {
+    level: 1,
+    score: 0,
+    lives: 3,
+    combo: 0,
+    powerUps: [],
+    isPaused: false,
+    isGameOver: false,
+    difficulty: 1,
+    timer: 60,
+    achievements: [],
+    highScores: JSON.parse(localStorage.getItem('sdn4pamalayanHighScores')) || [],
+    settings: {
+      soundVolume: 0.5,
+      musicVolume: 0.3,
+      graphics: 'high',
+      controls: 'mouse',
+      fullscreen: false,
+    }
+  };
+
+  // Player data is minimal because game is quiz based
+  const player = {
+    ability: {},
+    inventory: {},
+    stats: {},
+  };
+
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  let lastFrameTime = 0;
+
+  let currentQuestion = null;
+  let answerButtons = [];
+  let particles = [];
+
+  // Sounds setup
+  const sounds = {
+    correct: new Audio('https://freesound.org/data/previews/276/276033_5121236-lq.mp3'),
+    wrong: new Audio('https://freesound.org/data/previews/256/256113_3263906-lq.mp3'),
+    click: new Audio('https://freesound.org/data/previews/140/140630_2615114-lq.mp3'),
+  };
+  for (const key in sounds) {
+    sounds[key].volume = gameState.settings.soundVolume;
+  }
+
+  // Utility: Random int inclusive
+  function randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  // Generate math questions folder for class 4 SD difficulty progressive by level
+  function generateMathQuestion(level) {
+    // Level affects complexity, max range and operations used
+    let maxNum = 20 + level*10;
+    let op = '+';
+    let ops = ['+', '-', '*'];
+    if (level >= 4) ops.push('/');
+    op = ops[randInt(0, ops.length-1)];
+
+    let a, b, questionText, answer;
+
+    switch(op) {
+      case '+':
+        a = randInt(1, maxNum);
+        b = randInt(1, maxNum);
+        answer = a + b;
+        break;
+      case '-':
+        a = randInt(1, maxNum);
+        b = randInt(1, a); // prevent negative answers
+        answer = a - b;
+        break;
+      case '*':
+        a = randInt(1, Math.min(12, maxNum/2));
+        b = randInt(1, Math.min(12, maxNum/2));
+        answer = a * b;
+        break;
+      case '/':
+        b = randInt(2, Math.min(12, maxNum/2));
+        answer = randInt(1, Math.min(12,maxNum/2));
+        a = b * answer;
+        break;
+    }
+    questionText = `Berapakah ${a} ${op} ${b} ?`;
+    return {questionText, answer};
+  }
+
+  // Render functions
+
+  function drawRoundedRect(ctx,x,y,w,h,radius,fillStyle,strokeStyle,lineWidth=1) {
+    ctx.beginPath();
+    ctx.moveTo(x+radius,y);
+    ctx.lineTo(x+w-radius,y);
+    ctx.quadraticCurveTo(x+w,y,x+w,y+radius);
+    ctx.lineTo(x+w,y+h-radius);
+    ctx.quadraticCurveTo(x+w,y+h,x+w-radius,y+h);
+    ctx.lineTo(x+radius,y+h);
+    ctx.quadraticCurveTo(x,y+h,x,y+h-radius);
+    ctx.lineTo(x,y+radius);
+    ctx.quadraticCurveTo(x,y,x+radius,y);
+    ctx.closePath();
+    if(fillStyle){
+      ctx.fillStyle = fillStyle;
+      ctx.fill();
+    }
+    if(strokeStyle){
+      ctx.lineWidth = lineWidth;
+      ctx.strokeStyle = strokeStyle;
+      ctx.stroke();
+    }
+  }
+
+  function renderQuestion() {
+    if (!currentQuestion) return;
+    const { questionText } = currentQuestion;
+    const padding = 24;
+    const questionBoxWidth = canvas.width - padding*2;
+    const questionBoxHeight = 80;
+
+    // Draw question background box
+    drawRoundedRect(ctx, padding, padding, questionBoxWidth, questionBoxHeight, 20, 'rgba(138,43,226,0.8)', '#9f7aea', 3);
+
+    // Draw question text
+    ctx.fillStyle = '#fff';
+    ctx.font = '28px Poppins, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(questionText, canvas.width / 2, padding + questionBoxHeight / 2);
+
+    // Draw answer buttons
+    answerButtons.forEach(button => {
+      // Draw button background with glow for hover/active state
+      let bgColor = 'rgba(103, 80, 164, 0.8)';
+      if (button.isActive) bgColor = 'rgba(147, 197, 253, 0.9)';
+      drawRoundedRect(ctx, button.x, button.y, button.width, button.height, 16, bgColor, '#a5b4fc', 2);
+
+      ctx.fillStyle = '#eef2ff';
+      ctx.font = '22px Poppins, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(button.text, button.x + button.width/2, button.y + button.height/2);
+    });
+  }
+
+  // Create answer buttons with random positions
+  function createAnswerButtons(correctAnswer) {
+    // Generate 3 wrong answers, ensure unique and not equal to correct answer
+    const answers = new Set();
+    answers.add(correctAnswer);
+    while(answers.size < 4) {
+      let randomWrong = correctAnswer + randInt(-10, 10);
+      if(randomWrong !== correctAnswer && randomWrong > 0) answers.add(randomWrong);
+    }
+    const answerArr = Array.from(answers).sort(() => Math.random() - 0.5);
+
+    // Layout: 2 rows x 2 columns grid
+    const btnWidth = 260;
+    const btnHeight = 70;
+    const marginX = (canvas.width - (btnWidth * 2)) / 3;
+    const marginY = 150;
+
+    let buttons = [];
+
+    for(let i = 0; i < 4; i++) {
+      const col = i % 2;
+      const row = Math.floor(i / 2);
+      const x = marginX + col * (btnWidth + marginX);
+      const y = marginY + row * (btnHeight + 20);
+
+      buttons.push({
+        x, y, width: btnWidth, height: btnHeight,
+        text: answerArr[i],
+        value: answerArr[i],
+        isActive: false,
+      });
+    }
+    return buttons;
+  }
+
+  // Clear canvas for redraw
+  function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // Particle effects for correct or wrong answers
+  class Particle {
+    constructor(x, y, color) {
+      this.x = x;
+      this.y = y;
+      this.radius = randInt(2,5);
+      this.color = color;
+      this.life = 60;
+      this.vx = (Math.random() - 0.5) * 4;
+      this.vy = (Math.random() - 0.5) * 4;
+      this.gravity = 0.05;
+    }
+    update() {
+      this.life--;
+      this.x += this.vx;
+      this.y += this.vy;
+      this.vy += this.gravity;
+    }
+    draw(ctx) {
+      ctx.beginPath();
+      ctx.fillStyle = this.color;
+      ctx.globalAlpha = Math.max(this.life/60, 0);
+      ctx.shadowColor = this.color;
+      ctx.shadowBlur = 10;
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  function createParticles(x, y, color, count = 20) {
+    for(let i=0; i < count; i++) {
+      particles.push(new Particle(x, y, color));
+    }
+  }
+
+  function updateParticles() {
+    particles = particles.filter(p => p.life > 0);
+    particles.forEach(p => p.update());
+  }
+
+  function drawParticles() {
+    particles.forEach(p => p.draw(ctx));
+  }
+
+  // Game logic update
+  function updateGame(deltaTime) {
+    if(gameState.isGameOver || gameState.isPaused) return;
+
+    // Update timer
+    gameState.timer -= deltaTime / 1000;
+    if(gameState.timer <= 0) {
+      gameState.timer = 0;
+      endGame();
+    }
+    updateTimerUI();
+
+    // No additional physics for quiz game
+  }
+
+  // Animate score with scale effect (bonus)
+  let scoreAnimationScale = 1;
+  let scoreAnimationDecay = 0.08;
+  function animateScoreIncrease() {
+    scoreAnimationScale = 1.4;
+  }
+
+  // Render UI updates outside canvas
+  function updateUI() {
+    const scoreEl = document.getElementById('score');
+    const levelEl = document.getElementById('level');
+    const livesEl = document.getElementById('lives');
+    const timerEl = document.getElementById('timer');
+
+    scoreEl.style.transition = 'transform 0.3s ease';
+    scoreEl.style.transform = `scale(${scoreAnimationScale})`;
+    scoreAnimationScale -= scoreAnimationDecay;
+    if(scoreAnimationScale < 1) scoreAnimationScale = 1;
+    scoreEl.textContent = gameState.score;
+    levelEl.textContent = gameState.level;
+    livesEl.textContent = gameState.lives;
+    timerEl.textContent = Math.ceil(gameState.timer);
+  }
+
+  // Timer UI partial update
+  function updateTimerUI() {
+    const timerEl = document.getElementById('timer');
+    timerEl.textContent = Math.ceil(gameState.timer);
+  }
+
+  // Check collisions/interactions handled by mouse click on buttons only
+
+  // Next question setup
+  function nextQuestion() {
+    currentQuestion = generateMathQuestion(gameState.level);
+    answerButtons = createAnswerButtons(currentQuestion.answer);
+  }
+
+  // Handle answer click logic
+  function handleAnswerClick(x, y) {
+    if (gameState.isPaused || gameState.isGameOver) return;
+    for(let btn of answerButtons) {
+      if(x >= btn.x && x <= btn.x + btn.width &&
+         y >= btn.y && y <= btn.y + btn.height) {
+        btn.isActive = true;
+        if(btn.value === currentQuestion.answer) {
+          correctAnswer();
+        } else {
+          wrongAnswer();
+        }
+        break;
+      }
+    }
+  }
+
+  // Correct answer logic
+  function correctAnswer() {
+    gameState.score += 10 * gameState.level;
+    gameState.combo++;
+    if(gameState.combo >= 5) {
+      unlockAchievement('combo5', 'Kombinasi 5 Jawaban Benar!', 'Menjawab 5 soal berturut-turut dengan benar');
+      gameState.combo = 0; // reset combo
+    }
+    gameState.timer += 5;
+    createParticles(canvas.width/2, canvas.height/2, '#7eff7e', 40);
+    sounds.correct.currentTime = 0;
+    sounds.correct.play();
+    animateScoreIncrease();
+    if(gameState.score > 50*gameState.level) {
+      levelUp();
+    }
+    nextQuestion();
+  }
+
+  // Wrong answer logic
+  function wrongAnswer() {
+    gameState.lives--;
+    gameState.combo = 0;
+    createParticles(canvas.width/2, canvas.height/2, '#ff7777', 40);
+    sounds.wrong.currentTime = 0;
+    sounds.wrong.play();
+    if(gameState.lives <= 0) {
+      endGame();
+    } else {
+      nextQuestion();
+    }
+  }
+
+  // Level up
+  function levelUp() {
+    gameState.level++;
+    gameState.difficulty += 0.3;
+    gameState.timer += 15;
+    showAchievementPopup('Level Up! Selamat naik level ' + gameState.level);
+  }
+
+  // End game
+  function endGame() {
+    gameState.isGameOver = true;
+    gameState.isPaused = true;
+    showAchievementPopup('Permainan Selesai! Skor Anda: ' + gameState.score);
+    saveHighScore();
+  }
+
+  // Save high score (persistent)
+  function saveHighScore() {
+    const date = new Date().toISOString().split('T')[0];
+    const newScore = {
+      name: "Anak SD",
+      score: gameState.score,
+      level: gameState.level,
+      date,
+      achievements: gameState.achievements.filter(a => a.unlocked).map(a => a.name),
+    };
+    let highScores = gameState.highScores;
+    highScores.push(newScore);
+    highScores = highScores.sort((a,b) => b.score - a.score).slice(0,10);
+    gameState.highScores = highScores;
+    localStorage.setItem('sdn4pamalayanHighScores', JSON.stringify(highScores));
+  }
+
+  // Achievements storage and unlock system
+  const allAchievements = [
+    {id: 'firstCorrect', name: "Jawaban Pertama", description: "Menjawab soal pertama dengan benar", unlocked:false},
+    {id: 'combo5', name: "Kombinasi 5 Jawaban Benar!", description: "Menjawab 5 soal berturut-turut dengan benar", unlocked:false},
+    {id: 'level5', name: "Menembus Level 5", description: "Mencapai level 5", unlocked:false}
+  ];
+
+  function unlockAchievement(id, name, description) {
+    let achievement = gameState.achievements.find(a => a.id === id);
+    if(!achievement) {
+      achievement = {id, name, description, unlocked: true};
+      gameState.achievements.push(achievement);
+      addAchievementToUI(achievement);
+      showAchievementPopup('Pencapaian Terbuka: ' + name);
+      sounds.click.currentTime=0;
+      sounds.click.play();
+    }
+  }
+
+  function addAchievementToUI(achievement) {
+    const container = document.getElementById('achievementsList');
+    if(container.querySelector('em')) container.innerHTML = '';
+    const div = document.createElement('div');
+    div.className = 'achievement unlocked';
+    div.innerHTML = `<strong>${achievement.name}</strong><br/><small>${achievement.description}</small>`;
+    container.appendChild(div);
+  }
+
+  // Achievement popup UI
+  const achievementPopup = document.getElementById('achievement-popup');
+  let achievementTimeout = null;
+
+  function showAchievementPopup(text) {
+    achievementPopup.querySelector('#achievement-text').textContent = text;
+    achievementPopup.classList.add('show');
+    achievementPopup.focus();
+    if(achievementTimeout) clearTimeout(achievementTimeout);
+    achievementTimeout = setTimeout(() => {
+      achievementPopup.classList.remove('show');
+    }, 4000);
+  }
+
+  // Game loop implementation
+  function gameLoop(timestamp) {
+    if(!lastFrameTime) lastFrameTime = timestamp;
+    const deltaTime = timestamp - lastFrameTime;
+    lastFrameTime = timestamp;
+
+    if(!gameState.isPaused && !gameState.isGameOver) {
+      updateGame(deltaTime);
+    }
+
+    clearCanvas();
+    renderQuestion();
+    drawParticles();
+    updateParticles();
+    updateUI();
+
+    requestAnimationFrame(gameLoop);
+  }
+
+  // Input handling for mouse and touch
+  function handleCanvasClick(evt) {
+    const rect = canvas.getBoundingClientRect();
+    const x = (evt.clientX - rect.left) * (canvas.width / rect.width);
+    const y = (evt.clientY - rect.top) * (canvas.height / rect.height);
+    handleAnswerClick(x, y);
+  }
+
+  // Sidebar toggle
+  const sidebar = document.getElementById('sidebar');
+  const toggleSidebarBtn = document.getElementById('toggleSidebar');
+  toggleSidebarBtn.addEventListener('click', () => {
+    if(sidebar.classList.contains('collapsed')) {
+      sidebar.classList.remove('collapsed');
+      toggleSidebarBtn.setAttribute('aria-label', 'Sembunyikan panel sidebar');
+      toggleSidebarBtn.setAttribute('title', 'Sembunyikan panel sidebar');
+    } else {
+      sidebar.classList.add('collapsed');
+      toggleSidebarBtn.setAttribute('aria-label', 'Tampilkan panel sidebar');
+      toggleSidebarBtn.setAttribute('title', 'Tampilkan panel sidebar');
+    }
+  });
+
+  // Footer buttons
+  const btnPause = document.getElementById('btnPause');
+  const btnResume = document.getElementById('btnResume');
+  const btnReset = document.getElementById('btnReset');
+  const btnFullscreen = document.getElementById('btnFullscreen');
+
+  btnPause.addEventListener('click', () => {
+    if(!gameState.isPaused) {
+      gameState.isPaused = true;
+      btnPause.style.display = 'none';
+      btnResume.style.display = 'inline-flex';
+    }
+  });
+  btnResume.addEventListener('click', () => {
+    if(gameState.isPaused && !gameState.isGameOver) {
+      gameState.isPaused = false;
+      btnPause.style.display = 'inline-flex';
+      btnResume.style.display = 'none';
+      lastFrameTime = performance.now();
+    }
+  });
+  btnReset.addEventListener('click', () => {
+    resetGame();
+  });
+  btnFullscreen.addEventListener('click', () => {
+    if(!document.fullscreenElement) {
+      canvas.requestFullscreen().catch(console.error);
+    } else {
+      document.exitFullscreen();
+    }
+  });
+
+  // Reset game state function
+  function resetGame() {
+    gameState.level = 1;
+    gameState.score = 0;
+    gameState.lives = 3;
+    gameState.timer = 60;
+    gameState.combo = 0;
+    gameState.isPaused = false;
+    gameState.isGameOver = false;
+    gameState.achievements = [];
+    nextQuestion();
+    btnPause.style.display = 'inline-flex';
+    btnResume.style.display = 'none';
+  }
+
+  // Initialize
+  function init() {
+    resetGame();
+    canvas.addEventListener('click', handleCanvasClick);
+    requestAnimationFrame(gameLoop);
+  }
+
+  // Start game on load
+  window.onload = init;
+</script>
+</body>
+</html>
+
